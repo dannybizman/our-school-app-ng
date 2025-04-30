@@ -1,4 +1,4 @@
-# Lama Dev School Management Dashboard
+# SNYC ATH SOLUTIONS
 
 ## Getting Started
 
