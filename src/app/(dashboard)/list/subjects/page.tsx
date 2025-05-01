@@ -17,7 +17,7 @@ import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import { UserRole } from "@/constants/roles";
 
 
-const SubjectListPage = () => {
+const SubjectListPage = () => { 
   const { enqueueSnackbar } = useSnackbar();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const loading = useSelector((state: RootState) => state.loading.isLoading);

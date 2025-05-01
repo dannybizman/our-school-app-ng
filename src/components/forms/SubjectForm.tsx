@@ -13,7 +13,7 @@ const SubjectForm = ({
   data,
   onSuccess,
 }: {
-  type: "create" | "update";
+  type: "create" | "update"; 
   data?: Subject;
   onSuccess?: () => void;
 }) => {

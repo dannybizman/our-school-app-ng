@@ -60,7 +60,7 @@ const TeacherForm = ({ type }: { type: "create" | "update" }) => {
               formData.append("avatar", file);
             }
           }
-        } else {
+        } else { 
           formData.append(key, value as string);
         }
       });

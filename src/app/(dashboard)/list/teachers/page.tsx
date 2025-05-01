@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import { RootState } from "@/redux/store";
 import useRestoreRoleFromToken from "@/hooks/useRestoreRoleFromToken";
+import { UserRole } from "@/constants/roles";
 
 const TeacherListPage = () => {
   const [mounted, setMounted] = useState(false);
@@ -46,10 +47,10 @@ const TeacherListPage = () => {
 
 
   const fetchTeachers = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+   
     try {
       dispatch(startLoading());
+      const token = localStorage.getItem("token");
       const res = await getAllTeachers(token);
       setTeachersData(res.data?.teachers || []);
     } catch (error) {
@@ -66,8 +67,7 @@ const TeacherListPage = () => {
   };
 
   useEffect(() => {
-    if (!mounted) return;
-    fetchTeachers();
+    if (!mounted) fetchTeachers();
   }, [mounted]);
 
   const refresh = fetchTeachers;
@@ -200,7 +200,7 @@ const TeacherListPage = () => {
               trigger={<button className="btn">Add Teacher</button>}
               table="teacher"
               type="create"
-              refresh={refresh}
+              refresh={fetchTeachers}
             />
           )}
         </div>

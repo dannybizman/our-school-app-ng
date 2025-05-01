@@ -55,19 +55,19 @@ const useRestoreRoleFromToken = () => {
           avatarUrl = res?.teacher?.avatar?.url || "";
           firstName = res?.teacher?.firstName || "";
           lastName = res?.teacher?.lastName || "";
-          schoolName = res?.admin?.school?.schoolName || "";
+          schoolName = res?.teacher?.school?.schoolName || "";
         } else if (userRole === "student") {
           const res = await getLoggedInStudent(token);
           avatarUrl = res?.student?.avatar?.url || "";
           firstName = res?.student?.firstName || "";
           lastName = res?.student?.lastName || "";
-          schoolName = res?.admin?.school?.schoolName || "";
+          schoolName = res?.student?.school?.schoolName || "";
         } else if (userRole === "parent") {
           const res = await getLoggedInParent(token);
           avatarUrl = res?.parent?.avatar?.url || "";
           firstName = res?.parent?.firstName || "";
           lastName = res?.parent?.lastName || "";
-          schoolName = res?.admin?.school?.schoolName || "";
+          schoolName = res?.parent?.school?.schoolName || "";
         }
 
         dispatch(setRole({ role: userRole, avatarUrl, firstName, lastName, schoolName }));
