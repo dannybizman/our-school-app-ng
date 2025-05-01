@@ -7,9 +7,12 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import useRestoreRoleFromToken from "@/hooks/useRestoreRoleFromToken";
+import LoginSelectorModal from "@/components/LoginSelectorModal";
 
 const HeaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { theme, toggleTheme } = useTheme();
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
   // Restore role & avatar on component mount
   useRestoreRoleFromToken();
 
@@ -25,9 +28,7 @@ const HeaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
     };
   }, [isOpen]);
 
-
-
-  const { value: role, avatarUrl, firstName, lastName } = useSelector(
+  const { value: role, avatarUrl } = useSelector(
     (state: RootState) => state.role
   );
 
@@ -97,19 +98,21 @@ const HeaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
             </li>
 
             {/* Conditionally Render "Get Started" & "Login" or Admin Avatar */}
-
             {role === 'guest' && (
               <>
-
                 <li>
-                  <Link
-                    href="/login"
+                  <button
                     className="block text-gray-300 dark:text-black hover:text-white dark:hover-text-black"
-                    onClick={onClose}
+                    onClick={() => setLoginModalOpen(true)}
                   >
                     Login
-                  </Link>
+                  </button>
                 </li>
+
+                <LoginSelectorModal
+                  open={loginModalOpen}
+                  onClose={() => setLoginModalOpen(false)}
+                />
               </>
             )}
 
@@ -124,9 +127,6 @@ const HeaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                     className="rounded-full border border-gray-500"
                   />
                 </Link>
-                {/* <span className="text-gray-300 dark:text-black">
-                  {username}
-                </span> */}
               </li>
             )}
           </ul>

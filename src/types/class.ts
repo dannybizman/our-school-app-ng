@@ -6,5 +6,6 @@ export interface Class {
   capacity?: number;
   supervisorId: string;
   gradeLevel?: number;
+  school?: string;
 }
 

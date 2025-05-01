@@ -12,9 +12,10 @@ export interface Teacher {
   firstName: string;
   lastName: string;
   email?: string;
+  school?: string;
   phoneNumber?: string;
   address?: string;
-  password?: string;
+  password?: string; 
   bloodType?: string;
   sex: 'MALE' | 'FEMALE';
   avatar: Avatar;

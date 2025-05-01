@@ -158,7 +158,7 @@ export const getLoggedInStudent = async (token: string) => {
 // Get All Students
 export const getAllStudents = async (token?: string) => {
   const response = await axios.get(`${API_BASE_URL}/students/all`, getAuthHeaders(token));
-  return response.data.students || []; // Access the 'students' array directly
+  return response.data.students || []; 
 };
 
 export const getStudentById = (id: string, token?: string) =>

@@ -13,7 +13,7 @@ const Navbar = () => {
 
   useRestoreRoleFromToken();
 
-  const { value: role, avatarUrl, firstName, lastName } = useSelector(
+  const { value: role, avatarUrl, firstName, lastName, schoolName } = useSelector(
     (state: RootState) => state.role
   );
 
@@ -49,26 +49,33 @@ const Navbar = () => {
         </div>
 
         {/* Admin Info */}
-        <div className="flex flex-col text-right">
-          <span className="text-xs leading-3 font-medium">
-            {firstName && lastName ? `${firstName} ${lastName}` : "Loading..."}
-          </span>
-          <span className="text-[10px] text-gray-500">
-            {role !== "guest" ? role : ""}
-          </span>
-        </div>
-
-        {role !== "guest" && avatarUrl && (
-          <Link href="/admin">
+        <div className="flex items-center space-x-2">
+          {/* Avatar */}
+          {avatarUrl && (
             <Image
               src={avatarUrl}
               alt="User Avatar"
               width={40}
               height={40}
-              className="rounded-full border border-gray-300 shadow-sm cursor-pointer"
+              className="rounded-full border border-gray-300 shadow-sm"
             />
-          </Link>
-        )}
+          )}
+
+          {/* User Info */}
+          <div className="flex flex-col items-start space-y-1">
+            <span className="text-sm font-semibold text-gray-800">
+              {firstName && lastName ? `${firstName} ${lastName}` : "Loading..."}
+            </span>
+            <span className="text-xs text-gray-600">
+              {role !== "guest" ? role : ""}
+            </span>
+            {schoolName && (
+              <span className="text-xs text-gray-500">
+                {schoolName}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

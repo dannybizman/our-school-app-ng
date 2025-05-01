@@ -7,5 +7,6 @@ export interface Lesson {
   subjectId: string;
   classId: string;
   teacherId: string;
+  school?: string;
 }
 

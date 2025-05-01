@@ -2,6 +2,7 @@
 export interface Exam {
   _id: string;
   title: string;
+  school?: string;
   startTime: string;
   endTime: string;
   subjectId: {

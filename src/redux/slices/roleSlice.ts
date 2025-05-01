@@ -6,8 +6,9 @@ type RoleState = {
   value: UserRole;
   loaded: boolean;
   avatarUrl?: string;
-  firstName?: string;
+  firstName?: string; 
   lastName?: string;
+  schoolName?: string;
 }
 
 const initialState: RoleState = {
@@ -16,17 +17,19 @@ const initialState: RoleState = {
   avatarUrl: undefined,
   firstName: '',
   lastName: '',
+  schoolName: '',
 }
 
 export const roleSlice = createSlice({
   name: 'role',
   initialState,
   reducers: {
-    setRole: (state, action: PayloadAction<{ role: UserRole, avatarUrl?: string, firstName?: string, lastName?: string }>) => {
+    setRole: (state, action: PayloadAction<{ role: UserRole, avatarUrl?: string, firstName?: string, lastName?: string, schoolName?: string }>) => {
       state.value = action.payload.role;
       state.avatarUrl = action.payload.avatarUrl;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
+      state.schoolName = action.payload.schoolName;
       state.loaded = true;
     },
     resetRole: (state) => {
@@ -35,6 +38,7 @@ export const roleSlice = createSlice({
       state.avatarUrl = undefined;
       state.firstName = '';
       state.lastName = '';
+      state.schoolName = '';
     },
   },
 })

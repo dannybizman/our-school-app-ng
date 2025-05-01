@@ -23,5 +23,6 @@ export interface Avatar {
   resetPasswordExpires?: string;
   createdAt: string;
   updatedAt: string;
+  school: string;
 }
  

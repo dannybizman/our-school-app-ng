@@ -36,15 +36,15 @@ export default function MultiSelect({
           backgroundColor: "white", // Optional background color
         }}
       >
-       {Array.isArray(options) &&
-  options.map((option) => {
-    // console.log(option); // Check if options are coming correctly
-    return (
-      <Option key={option._id} value={option._id} label={option.name} style={{ color: "black" }}>
-        {option.name}
-      </Option>
-    );
-  })}
+        {Array.isArray(options) &&
+          options.map((option) => {
+            // console.log(option); // Check if options are coming correctly
+            return (
+              <Option key={option._id} value={option._id} label={option.name} style={{ color: "black" }}>
+                {option.name}
+              </Option>
+            );
+          })}
 
       </Select>
     </div>

@@ -5,7 +5,7 @@ export interface Result {
   examScore: number;
   testScore: number;
   assignmentScore: number;
-
+  school?: string;
   examId?: {
     _id: string;
     title: string;

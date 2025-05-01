@@ -24,7 +24,9 @@ const RegisterPage = () => {
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
+
       const formData = new FormData();
+
 
       Object.entries(values).forEach(([key, value]) => {
         if (key === "avatar") {
@@ -41,6 +43,9 @@ const RegisterPage = () => {
           formData.append(key, value as string);
         }
       });
+ 
+      
+      
       await registerAdmin(formData);
       enqueueSnackbar("Registration successful! Redirecting...", {
         variant: "success",
@@ -63,7 +68,7 @@ const RegisterPage = () => {
     }
   };
 
-  return (
+  return ( 
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Link href="/">
@@ -115,6 +120,7 @@ const RegisterPage = () => {
               <DatePicker className="w-full text-sm p-2 rounded-md" />
             </Form.Item>
           </div>
+          <AuthInputField label="School Name" name="schoolName" />
           <Form.Item
             label="Avatar"
             name="avatar"

@@ -2,6 +2,7 @@ export interface Test {
   _id: string;
   title: string;
   endDate: string;
+  school?: string;
   lessonId: {
     _id: string;
     name: string;

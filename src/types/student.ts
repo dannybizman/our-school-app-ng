@@ -14,6 +14,7 @@ export interface Student {
    address?: string;
    password?: string;
    bloodType?: string;
+   school?: string;
    sex: 'MALE' | 'FEMALE';
    avatar: Avatar;
    createdAt: string;

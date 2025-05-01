@@ -105,9 +105,7 @@ const TeacherForm = ({ type }: { type: "create" | "update" }) => {
       onFinish={onFinish}
       className="space-y-8"
     >
-      {/* <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create" : "Update"} Teacher
-      </h1> */}
+    
 
       {/* Authentication Info */}
       <div>

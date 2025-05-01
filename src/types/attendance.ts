@@ -7,4 +7,5 @@ export interface Attendance {
   present: boolean;
   studentId: Student | string;
   lessonId: Lesson | string;
+  school?: string;
 }

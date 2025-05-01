@@ -8,7 +8,7 @@ import { getLoggedInAdmin, getLoggedInTeacher, getLoggedInStudent, getLoggedInPa
 import { UserRole, USER_ROLES } from "@/constants/roles";
 
 type DecodedToken = {
-  role: string;
+  role: string; 
   exp: number;
 }; 
 
@@ -42,30 +42,35 @@ const useRestoreRoleFromToken = () => {
         let avatarUrl = "";
         let firstName = "";
         let lastName = "";
+        let schoolName = "";
 
         if (userRole === "admin") {
           const res = await getLoggedInAdmin(token);
           avatarUrl = res?.admin?.avatar?.url || "";
           firstName = res?.admin?.firstName || "";
           lastName = res?.admin?.lastName || "";
+          schoolName = res?.admin?.school?.schoolName || "";
         } else if (userRole === "teacher") {
           const res = await getLoggedInTeacher(token);
           avatarUrl = res?.teacher?.avatar?.url || "";
           firstName = res?.teacher?.firstName || "";
           lastName = res?.teacher?.lastName || "";
+          schoolName = res?.admin?.school?.schoolName || "";
         } else if (userRole === "student") {
           const res = await getLoggedInStudent(token);
           avatarUrl = res?.student?.avatar?.url || "";
           firstName = res?.student?.firstName || "";
           lastName = res?.student?.lastName || "";
+          schoolName = res?.admin?.school?.schoolName || "";
         } else if (userRole === "parent") {
           const res = await getLoggedInParent(token);
           avatarUrl = res?.parent?.avatar?.url || "";
           firstName = res?.parent?.firstName || "";
           lastName = res?.parent?.lastName || "";
+          schoolName = res?.admin?.school?.schoolName || "";
         }
 
-        dispatch(setRole({ role: userRole, avatarUrl, firstName, lastName }));
+        dispatch(setRole({ role: userRole, avatarUrl, firstName, lastName, schoolName }));
 
       } catch (error) {
         console.error("Failed to restore role from token", error);

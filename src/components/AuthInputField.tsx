@@ -16,23 +16,7 @@ const AuthInputField = ({
   type = "text",
   defaultValue,
 }: AntdFieldProps) => {
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const handleUploadChange = (info: any) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
   
-    // Pass the file object back to the form
-    const { onChange } = info; // we’ll get this via fieldProps
-    onChange?.(info); // Ensures form gets updated with file info
-  };
-  
-  const handleRemovePreview = () => {
-    setPreview(null); // Reset preview if the image is deleted
-  };
-
   return (
     <Form.Item
       name={name}

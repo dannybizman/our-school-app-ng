@@ -1,81 +1,197 @@
 "use client"
-
-import FormModal from "@/components/FormModal"
-import Pagination from "@/components/Pagination"
-import Table from "@/components/Table"
-import TableSearch from "@/components/TableSearch"
-import { parentsData} from "@/lib/data"
-import Image from "next/image"
-import Link from "next/link"
-
-type Parent = {
-  id: number;
-  name: string;
-  email?: string;
-  students: string[];
-  phone: string;
-  address: string;
-}
-
-const columns = [
-  {
-    header: "Info", accessor: "info"
-  },
-
-  {
-    header: "Student Names",
-    accessor: "students",
-    className: "hidden md:table-cell",
-  },
-
-  {
-    header: "Phone",
-    accessor: "phone",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Address",
-    accessor: "address",
-    className: "hidden lg:table-cell",
-  },
-  {
-    header: "Actions",
-    accessor: "actions",
-  },
-];
-
-
+import { useEffect, useState } from "react";
+import { Table, Button, Input, Space, Tooltip } from "antd";
+import { DeleteOutlined, EyeOutlined, FilterOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import FormModal from "@/components/FormModal";
+import Pagination from "@/components/Pagination";
+import { getAllParents, getAllStudents } from "@/utils/api";
+import { useSnackbar } from "notistack";
+import CustomSnackbar from "@/components/CustomSnackbar";
+import Image from "next/image";
+import type { ColumnsType } from "antd/es/table";
+import TableSearch from "@/components/TableSearch";
+import { Parent } from '@/types/parent';
+import { useDispatch, useSelector } from "react-redux";
+import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
+import { RootState } from "@/redux/store";
+import useRestoreRoleFromToken from "@/hooks/useRestoreRoleFromToken";
+import { Student } from "@/types/student";
+import Link from "next/link";
 
 
 
 const ParentListPage = () => {
-  const role = "admin"; // Replace this if you're getting role dynamically
-  const renderRow = (item: Parent) => (
+  const [mounted, setMounted] = useState(false);
+  const [parents, setParents] = useState<Parent[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
+  const [students, setStudents] = useState<Student[]>([]);
+  const role = useSelector((state: RootState) => state.role.value);
+  const loading = useSelector((state: RootState) => state.loading.isLoading);
+  const hasPermission = (allowedRoles: UserRole[], currentRole: UserRole) => {
+    return allowedRoles.includes(currentRole);
+  };
+  useRestoreRoleFromToken();
 
-    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-syncOrangeLight dark:bg-black text-black dark:text-white transition-all duration-300">
-      <td className="flex items-center p-4 gap-4">
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item?.email}</p>
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+
+  const paginatedParents = parents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+
+
+  const fetchParents = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      dispatch(startLoading());
+      const res = await getAllParents(token);
+      setParents(res.data?.parents || []);
+    } catch (error) {
+      enqueueSnackbar("Failed to fetch parents", {
+        variant: "error",
+        content: (key) => (
+          <CustomSnackbar id={key} message="Failed to fetch parents" variant="error" />
+        ),
+      });
+      console.error(error);
+    } finally {
+      dispatch(stopLoading());
+    }
+  };
+
+  useEffect(() => {
+    if (!mounted) return;
+    fetchParents();
+  }, [mounted]);
+
+  const refresh = fetchParents;
+
+
+
+  const formatId = (id: string) => {
+    if (!id || id.length < 7) return id;
+    return `${id.slice(0, 5)}${id.slice(-2)}`;
+  };
+
+
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const [studentsRes] = await Promise.all([getAllStudents(token)]);
+        setStudents(studentsRes.data?.students ?? []);
+      } catch (err) {
+        enqueueSnackbar("Failed to load students", {
+          variant: "error",
+          content: (key) => (
+            <CustomSnackbar id={key} message="Failed to load students" variant="error" />
+          ),
+        });
+      }
+    };
+    if (mounted) fetchDropdownData();
+  }, [mounted]);
+
+
+  const getStudentsNames = (ids: any[]) => {
+    return ids
+      .map((s) => {
+        const id = s?.$oid || s;
+        return students.find((subj) => subj._id === id)?.name;
+      })
+      .filter(Boolean)
+      .join(", ");
+  };
+
+  const columns = [
+    {
+      title: "Info",
+      dataIndex: "info",
+      key: "info",
+      render: (_: any, item: Parent) => (
+        <div className="flex items-center gap-3">
+          <Avatar src={item.avatar?.url || "/default-avatar.png"} size={40} />
+          <div>
+            <div className="font-medium">{item.firstName} {item.lastName}</div>
+            <div className="text-xs text-gray-500">{item.email}</div>
+          </div>
         </div>
-      </td>
-      <td className="hidden md:table-cell">{item.students.join(",")}</td>
-      <td className="hidden md:table-cell">{item.phone}</td>
-      <td className="hidden md:table-cell">{item.address}</td>
-      <td>
-        <div className="flex items-start gap-2">
-
-          {role === "admin" && (
-
+      ),
+      responsive: ['xs', 'sm', 'md', 'lg'],
+    },
+    {
+      title: "Parent ID",
+      dataIndex: "_id",
+      key: "parentId",
+      render: (id: string) => formatId(id),
+      responsive: ['sm', 'md'],
+    },
+    {
+      title: "Children",
+      dataIndex: "students",
+      key: "students",
+      render: (ids: any[]) => getStudentsNames(ids) || "—",
+      responsive: ['sm', 'md'],
+    },
+    {
+      title: "Phone",
+      dataIndex: "phoneNumber",
+      key: "phone",
+      responsive: ['lg'],
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      responsive: ['lg'],
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_: any, item: Parent) => (
+        <div className="flex gap-2">
+          <Tooltip title="View">
+            <Link href={`/list/teachers/${item._id}`}>
+              <Button icon={<EyeOutlined />} className="self-center" type="primary" shape="circle" />
+            </Link>
+          </Tooltip>
+          {hasPermission(["admin"], role) ? (
             <>
-              <FormModal table="parent" type="update" data={item} />
-              <FormModal table="parent" type="delete" id={item.id} />
+              <Tooltip title="Delete">
+                <FormModal
+                  trigger={<DeleteOutlined />}
+                  table="parent"
+                  type="delete"
+                  id={item._id}
+                  refresh={refresh}
+                />
+              </Tooltip>
+            </>
+          ) : (
+            <>
+              <Tooltip title="No permission">
+                <span className="text-gray-400 cursor-not-allowed">
+                  <DeleteOutlined />
+                </span>
+              </Tooltip>
             </>
           )}
         </div>
-      </td>
-    </tr>
-  );
+      ),
+      responsive: ['xs', 'sm', 'md', 'lg'],
+    },
+  ];
+
+  if (!mounted) return null;
   return (
     <div className='bg-white p-4 rounded-md flex-1 m-4 mt-0 dark:bg-black text-black dark:text-white transition-all duration-300'>
       {/* Top Section */}
@@ -84,26 +200,36 @@ const ParentListPage = () => {
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
-            <button className="w-8 items-center h-8 flex justify-center rounded-full bg-syncOrange">
-              <Image src="/filter.png" alt="" width={14} height={14} />
-            </button>
-            <button className="w-8 items-center h-8 flex justify-center rounded-full bg-syncOrange">
-              <Image src="/sort.png" alt="" width={14} height={14} />
-            </button>
-            {role === "admin" && (
-              <FormModal table="parent" type="create" />
-
+            <Button icon={<FilterOutlined />} className="bg-syncOrange border-none text-white" />
+            <Button icon={<SortAscendingOutlined />} className="bg-syncOrange border-none text-white" />
+            {hasPermission(["admin"], role) && (
+              <FormModal
+                trigger={<button className="btn">Add Parent</button>}
+                table="parent"
+                type="create"
+                refresh={refresh}
+              />
             )}
-          </div> 
+          </div>
         </div>
       </div>
 
       {/* List Section */}
-      <Table columns={columns} renderRow={renderRow} data={parentsData} />
+      <Table
+        columns={columns}
+        dataSource={paginatedParents}
+        loading={loading}
+        rowKey="_id"
+        scroll={{ x: 'max-content' }}
+        pagination={false}
+      />
 
-      {/* Pagnation Section */}
-      <Pagination />
-
+      <Pagination
+        current={currentPage}
+        total={parents.length}
+        pageSize={pageSize}
+        onChange={(page) => setCurrentPage(page)}
+      />
     </div>
   )
 }

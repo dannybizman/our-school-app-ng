@@ -265,9 +265,9 @@ const FormModal = ({ table, type, data, id, refresh }: {
             title={`${type.charAt(0).toUpperCase() + type.slice(1)} ${table}`}
             onCancel={() => setOpen(false)}
             footer={null}
-            width="40%"
+            width="60%"
             destroyOnClose
-            style={{textAlign: 'center', marginTop: "100px"}}
+            style={{textAlign: 'center', marginTop: "20px"}}
          >
             {renderForm()}
          </Modal>
