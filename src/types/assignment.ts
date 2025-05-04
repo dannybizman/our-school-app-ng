@@ -1,6 +1,7 @@
 export interface Assignment {
   _id: string;
   title: string;
+  startDate
   endDate: string;
   school?: string;
   lessonId: {

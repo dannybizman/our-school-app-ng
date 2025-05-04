@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import { Table, Button, Input, Space, Tooltip } from "antd";
+import { Table, Button, Input, Space, Tooltip, Avatar } from "antd";
 import { DeleteOutlined, EyeOutlined, FilterOutlined, SortAscendingOutlined } from "@ant-design/icons";
 import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
@@ -76,10 +76,6 @@ const ParentListPage = () => {
 
 
 
-  const formatId = (id: string) => {
-    if (!id || id.length < 7) return id;
-    return `${id.slice(0, 5)}${id.slice(-2)}`;
-  };
 
 
   useEffect(() => {
@@ -101,16 +97,31 @@ const ParentListPage = () => {
     if (mounted) fetchDropdownData();
   }, [mounted]);
 
+  const formatId = (id: string) => {
+    if (!id || id.length < 7) return id;
+    return `${id.slice(0, 5)}${id.slice(-2)}`;
+  };
 
-  const getStudentsNames = (ids: any[]) => {
-    return ids
-      .map((s) => {
-        const id = s?.$oid || s;
-        return students.find((subj) => subj._id === id)?.name;
+
+
+  const getStudentsNames = (studentObjs: any[]) => {
+    return studentObjs
+      .map((student) => {
+        if (student.firstName && student.lastName) {
+          return `${student.firstName} ${student.lastName}`;
+        }
+        const studentData = students.find((s) => s._id === student || s._id === student?._id);
+        if (studentData) {
+          return `${studentData.firstName} ${studentData.lastName}`;
+        }
+
+        return null;
       })
       .filter(Boolean)
       .join(", ");
   };
+
+
 
   const columns = [
     {
@@ -139,9 +150,11 @@ const ParentListPage = () => {
       title: "Children",
       dataIndex: "students",
       key: "students",
-      render: (ids: any[]) => getStudentsNames(ids) || "—",
+      render: (students: any[]) => getStudentsNames(students) || "—",
       responsive: ['sm', 'md'],
     },
+
+
     {
       title: "Phone",
       dataIndex: "phoneNumber",
@@ -159,11 +172,10 @@ const ParentListPage = () => {
       key: "actions",
       render: (_: any, item: Parent) => (
         <div className="flex gap-2">
-          <Tooltip title="View">
-            <Link href={`/list/teachers/${item._id}`}>
-              <Button icon={<EyeOutlined />} className="self-center" type="primary" shape="circle" />
-            </Link>
-          </Tooltip>
+          {hasPermission(["admin", "teacher"], role) &&
+            <Tooltip title="edit">
+              <FormModal table="parent" type="update" data={item} refresh={refresh} />
+            </Tooltip>}
           {hasPermission(["admin"], role) ? (
             <>
               <Tooltip title="Delete">

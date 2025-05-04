@@ -1,31 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button, DatePicker, Form, Select, Typography } from "antd";
-import { Exam } from "@/types/exam";
 import InputField from "@/components/InputField";
-import { createExam, getAllSubjects } from "@/utils/api";
+import { createExam, getAllSubjects, updateExam } from "@/utils/api";
 import { useSnackbar } from 'notistack';
 import CustomSnackbar from "@/components/CustomSnackbar";
 import dayjs from "dayjs";
 
 const { Option } = Select;
 
-export default function ExamForm() {
+export default function ExamForm({ type, data, onSuccess }: { type: "create" | "update", data?: any, onSuccess?: () => void }) {
   const { enqueueSnackbar } = useSnackbar();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [form] = Form.useForm();
 
+  const [form] = Form.useForm();
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const [subjectsRes] = await Promise.all([
-          getAllSubjects(token),
-        ]);
-
+        const [subjectsRes] = await Promise.all([getAllSubjects(token)]);
         setSubjects(subjectsRes.data.subjects);
       } catch (error: any) {
         console.error("Exam creation error:", error);
@@ -40,6 +36,18 @@ export default function ExamForm() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (type === "update" && data) {
+      form.setFieldsValue({
+        title: data.title,
+        startTime: dayjs(data.startTime),
+        endTime: dayjs(data.endTime),
+      });
+      setSelectedSubject(data.subjectId);
+    }
+  }, [type, data, form]);
+
 
   const onFinish = async (values: any) => {
     const token = localStorage.getItem("token");
@@ -56,27 +64,49 @@ export default function ExamForm() {
     }
 
     try {
-      await createExam(
-        {
-          ...values,
-          subjectId: selectedSubject,
-          startTime: dayjs(values.startTime).toISOString(),
-          endTime: dayjs(values.endTime).toISOString(),
-        },
-        token
-      );
+      if (type === "create") {
+        await createExam(
+          {
+            ...values,
+            subjectId: selectedSubject,
+            startTime: dayjs(values.startTime).toISOString(),
+            endTime: dayjs(values.endTime).toISOString(),
+          },
+          token
+        );
 
-      enqueueSnackbar("Exam created successfully!", {
-        variant: "success",
-        content: (key) => (
-          <CustomSnackbar id={key} message="Exam created successfully!" variant="success" />
-        ),
-      });
+        enqueueSnackbar("Exam created successfully!", {
+          variant: "success",
+          content: (key) => (
+            <CustomSnackbar id={key} message="Exam created successfully!" variant="success" />
+          ),
+        });
 
-      form.resetFields();
-      setSelectedSubject(null);
+        form.resetFields();
+        setSelectedSubject(null);
+      } else if (type === "update" && data?._id) {
+        await updateExam(
+          data._id,
+          {
+            ...values,
+            subjectId: selectedSubject,
+            startTime: dayjs(values.startTime).toISOString(),
+            endTime: dayjs(values.endTime).toISOString(),
+          },
+          token
+        );
+
+        enqueueSnackbar("Exam updated successfully!", {
+          variant: "success",
+          content: (key, message) => (
+            <CustomSnackbar id={key} message={String(message)} variant="success" />
+          ),
+        });
+
+        if (onSuccess) onSuccess();
+      }
     } catch (error: any) {
-      const message = error?.response?.data?.message || error.message || "Error creating exam";
+      const message = error?.response?.data?.message || error.message || (type === "update" ? "Error updating exam." : "Error creating exam.");
       enqueueSnackbar(message, {
         variant: "error",
         content: (key) => (
@@ -133,7 +163,7 @@ export default function ExamForm() {
 
       <div className="col-span-1 md:col-span-2 text-right mt-4">
         <Button htmlType="submit" type="primary">
-          Create Exam
+          {type === "create" ? "Create Exam" : "Update Exam"}
         </Button>
       </div>
     </Form>

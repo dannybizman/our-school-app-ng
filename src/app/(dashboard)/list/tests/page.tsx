@@ -94,8 +94,8 @@ const TestListPage = () => {
                <Image
                   src={record.lessonId?.teacherId?.avatar?.url || "/default-avatar.png"}
                   alt="avatar"
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                   className="rounded-full object-cover"
                />
                <div>

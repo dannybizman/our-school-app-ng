@@ -4,29 +4,21 @@ import { useEffect } from "react";
 import { Form, Button } from "antd";
 import InputField from "../InputField";
 import { createSubject, updateSubject } from "@/utils/api";
-import { Subject } from "@/types/subject";
 import { useSnackbar } from 'notistack';
 import CustomSnackbar from "@/components/CustomSnackbar";
 
-const SubjectForm = ({
-  type,
-  data,
-  onSuccess,
-}: {
-  type: "create" | "update"; 
-  data?: Subject;
-  onSuccess?: () => void;
-}) => {
+const SubjectForm = ({ type, data, onSuccess }: { type: "create" | "update", data?: any, onSuccess?: () => void }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (type === "update" && data) {
-      form.setFieldsValue({
-        name: data.name,
-      });
+    if (data) {
+      form.setFieldsValue(data);
+    } else {
+      form.resetFields();
     }
-  }, [type, data, form]);
+  }, [data]);
+
 
   const handleFinish = async (values: { name: string }) => {
     try {

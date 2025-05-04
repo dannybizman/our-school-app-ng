@@ -1,21 +1,35 @@
 "use client";
 import { Button, Select, TimePicker, Form } from "antd";
-import { Lesson } from "@/types/lesson";
-import InputField from "@/components/InputField";
 import { useState, useEffect } from "react";
-import { createLesson, getAllSubjects, getAllClasses, getAllTeachers } from "@/utils/api";
+import { createLesson, updateLesson, getAllSubjects, getAllClasses, getAllTeachers } from "@/utils/api";
 import { useSnackbar } from 'notistack'; 
 import CustomSnackbar from "@/components/CustomSnackbar";
 import dayjs from "dayjs";
+import InputField from "../InputField";
 
 const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
 
-export default function LessonForm() {
+export default function LessonForm({ type, data, onSuccess }: { type: "create" | "update", data?: any, onSuccess?: () => void }) {
   const [form] = Form.useForm();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<any[]>([]);
   const { enqueueSnackbar } = useSnackbar();
+
+
+useEffect(() => {
+  if (data) {
+    form.setFieldsValue({
+      ...data,
+      startTime: data.startTime ? dayjs(data.startTime) : null,
+      endTime: data.endTime ? dayjs(data.endTime) : null,
+    });
+  } else {
+    form.resetFields();
+  }
+}, [data]);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,9 +63,9 @@ export default function LessonForm() {
   const onFinish = async (values: any) => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
+  
     const { subjectId, classId, teacherId, startTime, endTime, ...rest } = values;
-
+  
     if (!subjectId || !classId || !teacherId) {
       enqueueSnackbar("Please select a subject, class, and teacher.", {
         variant: "error",
@@ -61,36 +75,60 @@ export default function LessonForm() {
       });
       return;
     }
-
+  
     try {
-      await createLesson(
-        {
-          ...rest,
-          subjectId,
-          classId,
-          teacherId,
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString(),
-        },
-        token
-      );
-
-      enqueueSnackbar("Lesson created successfully!", {
-        variant: "success",
-        content: (key, message) => (
-          <CustomSnackbar id={key} message={String(message)} variant="success" />
-        ),
-      });
-
-      form.resetFields();
+      if (type === "create") {
+        await createLesson(
+          {
+            ...rest,
+            subjectId,
+            classId,
+            teacherId,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+          },
+          token
+        );
+  
+        enqueueSnackbar("Lesson created successfully!", {
+          variant: "success",
+          content: (key, message) => (
+            <CustomSnackbar id={key} message={String(message)} variant="success" />
+          ),
+        });
+  
+        form.resetFields();
+      } else if (type === "update" && data?._id) {
+        await updateLesson(
+          data._id,
+          {
+            ...rest,
+            subjectId,
+            classId,
+            teacherId,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+          },
+          token
+        );
+  
+        enqueueSnackbar("Lesson updated successfully!", {
+          variant: "success",
+          content: (key, message) => (
+            <CustomSnackbar id={key} message={String(message)} variant="success" />
+          ),
+        });
+  
+        if (onSuccess) onSuccess();
+      }
     } catch (error: any) {
-      console.error("Lesson creation error:", error);
-
+      console.error("Lesson form error:", error);
+  
       const message =
         error?.response?.data?.message ||
         error?.message ||
-        "Error creating lesson.";
-
+        (type === "update" ? "Error updating lesson." : "Error creating lesson.");
+  
       enqueueSnackbar(message, {
         variant: "error",
         content: (key) => (
@@ -99,7 +137,7 @@ export default function LessonForm() {
       });
     }
   };
-
+  
   return (
     <Form
       form={form}
@@ -176,9 +214,10 @@ export default function LessonForm() {
       </Form.Item>
 
       <div className="col-span-1 md:col-span-2 text-right mt-4">
-        <Button htmlType="submit" type="primary">
-          Create Lesson
-        </Button>
+    <Button htmlType="submit" type="primary">
+  {type === "create" ? "Create Lesson" : "Update Lesson"}
+</Button>
+
       </div>
     </Form>
   );

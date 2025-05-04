@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import Link from 'next/link'
 import dayjs from "dayjs";
+import { RootState } from '@/redux/store'
 
 
 const Announcements = () => {
@@ -71,7 +72,7 @@ const Announcements = () => {
                      <h2 className="font-medium">{announcement.title}</h2>
                      <span className="text-xs text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-md px-1 py-1">
                         <span className="text-xs text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-md px-1 py-1">
-                        {dayjs(announcement.startTime).format("MMM D, YYYY h:mm A")} - {dayjs(announcement.endTime).format("MMM D, YYYY h:mm A")}
+                           {dayjs(announcement.startTime).format("MMM D, YYYY h:mm A")} - {dayjs(announcement.endTime).format("MMM D, YYYY h:mm A")}
                         </span>
 
                      </span>

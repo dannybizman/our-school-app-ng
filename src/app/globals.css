@@ -144,4 +144,16 @@ background-color: #f2f1ff !important;
    margin-bottom: 240px !important;
   }
 
+  .ant-select-selection-item {
+   color: #000 !important;  
+ }
  
+/* globals.css or custom styles */
+/* .fc .fc-toolbar-title {
+   font-size: 1rem !important;
+ }
+ .fc .fc-button {
+   padding: 0.25rem 0.5rem !important;
+   font-size: 0.75rem !important;
+ }
+  */

@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import { Spin } from "antd";
+import { getByIdMap } from "@/utils/getByIdMap";
 
 const { Text } = Typography;
 
@@ -145,7 +146,7 @@ const FormModal = ({ table, type, data, id, refresh }: {
    const { enqueueSnackbar } = useSnackbar();
    const dispatch = useDispatch();
    const isLoading = useSelector((state: RootState) => state.loading.isLoading);
-
+   const [formData, setFormData] = useState<any>(null);
 
    const deleteFunctions: { [key: string]: (id: string, token?: string) => Promise<any> } = {
       teacher: deleteTeacher,
@@ -161,6 +162,36 @@ const FormModal = ({ table, type, data, id, refresh }: {
       announcement: deleteAnnouncement,
       test: deleteTest,
       parent: deleteParent
+   };
+
+   const handleOpen = async () => {
+      if (type === "update" && id) {
+         try {
+            dispatch(startLoading());
+            const token = localStorage.getItem("token");
+
+            const fetchById = getByIdMap[table];
+            if (!fetchById) {
+               throw new Error(`No getById function mapped for table: ${table}`);
+            }
+
+            const { data } = await fetchById(id.toString(), token || undefined);
+            setFormData(data);
+         } catch (err) {
+            console.error("Failed to fetch data", err);
+            enqueueSnackbar("Failed to fetch data", {
+               variant: "error",
+               content: (key) => (
+                  <CustomSnackbar id={key} message="Failed to fetch data" variant="error" />
+               ),
+            });
+         } finally {
+            dispatch(stopLoading());
+            setOpen(true);
+         }
+      } else {
+         setOpen(true);
+      }
    };
 
    const handleDelete = async () => {
@@ -267,7 +298,7 @@ const FormModal = ({ table, type, data, id, refresh }: {
             footer={null}
             width="60%"
             destroyOnClose
-            style={{textAlign: 'center', marginTop: "20px"}}
+            style={{ textAlign: 'center', marginTop: "20px" }}
          >
             {renderForm()}
          </Modal>

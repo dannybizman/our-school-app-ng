@@ -47,7 +47,7 @@ const TeacherListPage = () => {
 
 
   const fetchTeachers = async () => {
-   
+
     try {
       dispatch(startLoading());
       const token = localStorage.getItem("token");
@@ -113,7 +113,11 @@ const TeacherListPage = () => {
       key: "info",
       render: (_: any, item: Teacher) => (
         <div className="flex items-center gap-3">
-          <Avatar src={item.avatar?.url || "/default-avatar.png"} size={40} />
+          <Avatar src={item.avatar?.url || "/default-avatar.png"} 
+          alt="avatar"
+           width={36}
+            height={36} 
+            className="rounded-full object-cover" />
           <div>
             <div className="font-medium">{item.firstName} {item.lastName}</div>
             <div className="text-xs text-gray-500">{item.email}</div>
@@ -215,7 +219,7 @@ const TeacherListPage = () => {
         pagination={false}
       />
 
-     <Pagination
+      <Pagination
         current={currentPage}
         total={teachersData.length}
         pageSize={pageSize}

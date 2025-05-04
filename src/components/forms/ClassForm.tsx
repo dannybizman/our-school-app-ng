@@ -4,17 +4,18 @@ import { Button, Form } from "antd";
 import { Class } from "@/types/class";
 import InputField from "@/components/InputField";
 import MultiSelect from "@/components/MultiSelect";
-import { createClass, getAllTeachers } from "@/utils/api";
+import { createClass, getAllTeachers, updateClass } from "@/utils/api";
 import { useSnackbar } from 'notistack';
 import CustomSnackbar from "@/components/CustomSnackbar";
 
 interface Props {
-  gradeId: string;
   supervisorId: string;
-  teachers: any[];
+  type: "create" | "update";
+  data?: any;
+  onSuccess?: () => void;
 }
 
-export default function ClassForm({ supervisorId }: Props) {
+export default function ClassForm({ supervisorId, type, data, onSuccess }: Props) {
   const [form] = Form.useForm();
   const [selectedSupervisor, setSelectedSupervisor] = useState<string>(supervisorId);
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -27,7 +28,6 @@ export default function ClassForm({ supervisorId }: Props) {
       const { data } = await getAllTeachers(token);
       if (data.success) {
         setTeachers(data.teachers);
-        console.log("Teachers fetched:", data.teachers);
       }
     } catch (err) {
       enqueueSnackbar("Failed to fetch teachers", {
@@ -43,6 +43,18 @@ export default function ClassForm({ supervisorId }: Props) {
     fetchTeachers();
   }, []);
 
+  // Prefill form when type is 'update'
+  useEffect(() => {
+    if (type === "update" && data) {
+      form.setFieldsValue({
+        name: data.name,
+        capacity: data.capacity,
+        gradeLevel: data.gradeLevel,
+      });
+      setSelectedSupervisor(data.supervisorId);
+    }
+  }, [type, data, form]);
+
   const onFinish = async (values: any) => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -53,20 +65,32 @@ export default function ClassForm({ supervisorId }: Props) {
     };
 
     try {
-      await createClass(finalData, token);
-      enqueueSnackbar("Class created successfully!", {
-        variant: "success",
-        content: (key, message) => (
-          <CustomSnackbar id={key} message={String(message)} variant="success" />
-        ),
-      });
-      form.resetFields();
-      setSelectedSupervisor(supervisorId);
+      if (type === "create") {
+        await createClass(finalData, token);
+        enqueueSnackbar("Class created successfully!", {
+          variant: "success",
+          content: (key) => (
+            <CustomSnackbar id={key} message="Class created successfully!" variant="success" />
+          ),
+        });
+        form.resetFields();
+        setSelectedSupervisor(supervisorId);
+      } else if (type === "update" && data?._id) {
+        await updateClass(data._id, finalData, token);
+        enqueueSnackbar("Class updated successfully!", {
+          variant: "success",
+          content: (key) => (
+            <CustomSnackbar id={key} message="Class updated successfully!" variant="success" />
+          ),
+        });
+      }
+
+      onSuccess?.();
     } catch (error) {
-      enqueueSnackbar("Failed to create class.", {
+      enqueueSnackbar(`Failed to ${type} class.`, {
         variant: "error",
-        content: (key, message) => (
-          <CustomSnackbar id={key} message={String(message)} variant="error" />
+        content: (key) => (
+          <CustomSnackbar id={key} message={`Failed to ${type} class.`} variant="error" />
         ),
       });
       console.error(error);
@@ -118,7 +142,7 @@ export default function ClassForm({ supervisorId }: Props) {
 
       <Form.Item>
         <Button htmlType="submit" type="primary">
-          Create Class
+          {type === "create" ? "Create Class" : "Update Class"}
         </Button>
       </Form.Item>
     </Form>

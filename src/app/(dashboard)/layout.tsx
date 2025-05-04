@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import Providers from "@/components/Providers"; 
 import GlobalLoader from "@/components/common/GlobalLoader";
+import "@/utils/dayjs-setup"; 
 
 export default function DashboardLayout({
   children,

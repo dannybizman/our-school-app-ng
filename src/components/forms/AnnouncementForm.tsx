@@ -1,22 +1,42 @@
 "use client";
 import dayjs from "dayjs";
-import { Button, DatePicker, Form, } from "antd";
+import { Button, DatePicker, Form, TimePicker, } from "antd";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import MultiSelect from "../MultiSelect";
-import { Announcement } from "@/types/announcement";
 import InputField from "@/components/InputField";
-import { createAnnouncement, getAllClasses } from "@/utils/api";
+import { createAnnouncement, getAllClasses, updateAnnouncement } from "@/utils/api";
 import { useSnackbar } from "notistack"
 import CustomSnackbar from "@/components/CustomSnackbar"
 
-export default function AnnouncementForm() {
+export default function AnnouncementForm({
+  type,
+  data,
+  onSuccess,
+}: {
+  type: "create" | "update";
+  data?: any;
+  onSuccess?: () => void;
+}) {
   const [form] = Form.useForm<Event>();
   const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState(true);
   const [classes, setClasses] = useState<any[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
 
+
+
+  useEffect(() => {
+    if (type === "update" && data) {
+      form.setFieldsValue({
+       ...data,
+        startTime: data.startTime ? dayjs(data.startTime) : null,
+        endTime: data.endTime ? dayjs(data.endTime) : null,
+      });
+      setSelectedClasses(data.classes || []);
+
+    }
+  }, [type, data, form]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,24 +66,57 @@ export default function AnnouncementForm() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    try {
-      await createAnnouncement({
-        ...values,
-        classes: selectedClasses,
-        startTime: dayjs(values.startTime).toISOString(),
-        endTime: dayjs(values.endTime).toISOString(),
-      }, token);
-
-
-      enqueueSnackbar("Announcement created successfully!", {
-        variant: "success",
-        content: (key, message) => (
-          <CustomSnackbar id={key} message={String(message)} variant="success" />
+    const { selectedClasses, startTime, endTime, ...rest } = values;
+    if (!selectedClasses || !startTime || !endTime) {
+      enqueueSnackbar("Please fill in all required fields", {
+        variant: "error",
+        content: (key) => (
+          <CustomSnackbar
+            id={key}
+            message="Please fill in all required fields"
+            variant="error"
+          />
         ),
       });
+      return;
+    }
 
-      form.resetFields();
-      setSelectedClasses([]);
+    try {
+      if (type === "create") {
+        await createAnnouncement({
+          ...rest,
+          classes: selectedClasses,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+        }, token);
+
+        enqueueSnackbar("Announcement created successfully!", {
+          variant: "success",
+          content: (key, message) => (
+            <CustomSnackbar id={key} message={String(message)} variant="success" />
+          ),
+        });
+
+        form.resetFields();
+        setSelectedClasses([]);
+        if (onSuccess) onSuccess();
+
+      } if (type === "update" && data?._id) {
+        console.log("Updating event with ID:", data._id);
+        await updateAnnouncement(data._id, {
+          ...rest,
+          classes: selectedClasses,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+        }, token);
+        enqueueSnackbar("Announcement updated successfully!", {
+          variant: "success",
+          content: (key) => (
+            <CustomSnackbar id={key} message="Announcement updated successfully!" variant="success" />
+          ),
+        });
+        if (onSuccess) onSuccess();
+      }
 
     } catch (error: any) {
       console.error("Announcement creation error:", error);
@@ -79,29 +132,48 @@ export default function AnnouncementForm() {
 
   return (
     <Form form={form} layout="vertical" onFinish={onFinish} className="flex flex-wrap gap-4">
-      <Form.Item name="title" label="Title" rules={[{ required: true, message: "Title is required" }]}>
-        <InputField />
-      </Form.Item>
-      <Form.Item name="description" label="Description" rules={[{ required: true, message: "Description is required" }]}>
-        <InputField />
-      </Form.Item>
-      <Form.Item name="startTime" label="Start Time" rules={[{ required: true, message: "Start time is required" }]}>
-        <DatePicker showTime style={{ width: "100%" }} />
-      </Form.Item>
+      <div className="flex flex-col gap-2 w-full md:w-1/4">
+        <Form.Item name="title" label="Title" rules={[{ required: true, message: "Title is required" }]}>
+          <InputField />
+        </Form.Item>
+      </div>
+      <div className="flex flex-col gap-2 w-full md:w-1/4">
+        <Form.Item name="description" label="Description" rules={[{ required: true, message: "Description is required" }]}>
+          <InputField />
+        </Form.Item>
+      </div>
+      <div className="flex flex-col gap-2 w-full md:w-1/4">
+        <Form.Item
+          label="Start Time"
+          name="startTime"
+          rules={[{ required: true, message: "Start time is required" }]}
+        >
+          <TimePicker style={{ width: "100%" }} placeholder="Start Time" />
+        </Form.Item>
+      </div>
+      <div className="flex flex-col gap-2 w-full md:w-1/4">
+        <Form.Item
+          label="End Time"
+          name="endTime"
+          rules={[{ required: true, message: "End time is required" }]}
+        >
+          <TimePicker style={{ width: "100%" }} placeholder="End Time" />
+        </Form.Item>
+      </div>
+      <div className="flex flex-col gap-2 w-full md:w-1/4">
+        <MultiSelect
+          label="Classes"
+          options={classes}
+          selected={selectedClasses}
+          setSelected={setSelectedClasses}
+        />
+      </div>
 
-      <Form.Item name="endTime" label="End Time" rules={[{ required: true, message: "End time is required" }]}>
-        <DatePicker showTime style={{ width: "100%" }} />
+      <Form.Item className="w-full">
+        <Button htmlType="submit" type="primary">
+          {type === "create" ? "Create Announcement" : "Update Announcement"}
+        </Button>
       </Form.Item>
-
-      <MultiSelect
-        label="Classes"
-        options={classes}
-        selected={selectedClasses}
-        setSelected={setSelectedClasses}
-      />
-
-
-      <Button htmlType="submit" type="primary">Create Announcement</Button>
     </Form>
   );
 }

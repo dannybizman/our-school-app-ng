@@ -125,7 +125,7 @@ export const updateTeacherProfile = (formData: FormData, token?: string) =>
       ...getAuthHeaders(token).headers,
       'Content-Type': 'multipart/form-data',
     },
-  });
+  }); 
 
 
 
@@ -214,17 +214,8 @@ export const getParentById = (id: string, token?: string) =>
 export const deleteParent = (id: string, token?: string) =>
   axios.delete(`${API_BASE_URL}/parents/delete/${id}`, getAuthHeaders(token));
 
-export const updateParentProfile = (
-  data: {
-    name: string;
-    surname: string;
-    phone: string;
-    address: string;
-    password?: string;
-  },
-  token?: string
-) => axios.put(`${API_BASE_URL}/parents/update-profile`, data, getAuthHeaders(token));
-
+  export const updateParentProfile = (id: string, formData: FormData, token?: string) =>
+  axios.put(`${API_BASE_URL}/parents/${id}`, formData, getAuthHeaders(token));
 
 
 /* ========================= Class APIs ========================= */
@@ -248,7 +239,7 @@ export const getClassById = async (id: string, token: string) => {
 
 // Update Class
 export const updateClass = async (id: string, updatedData: any, token: string) => {
-  const response = await axios.put(`${API_BASE_URL}/class/update/${id}`, updatedData, getAuthHeaders(token));
+  const response = await axios.put(`${API_BASE_URL}/class//${id}`, updatedData, getAuthHeaders(token));
   return response.data;
 };
 

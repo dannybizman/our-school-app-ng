@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
    createParent,
    getAllStudents,
+   updateParentProfile
 } from "@/utils/api";
 import AuthInputField from "../AuthInputField";
 import MultiSelect from "../MultiSelect";
@@ -11,10 +12,11 @@ import { UploadOutlined } from "@ant-design/icons";
 import { useSnackbar } from 'notistack';
 import CustomSnackbar from "@/components/CustomSnackbar";
 import { Student } from "@/types/student";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
-const ParentForm = ({ type }: { type: "create" | "update" }) => {
+const ParentForm: React.FC<{ type: "create" | "update"; data?: any; onSuccess?: () => void }> = ({ type, data, onSuccess }) => {
    const [form] = Form.useForm();
    const [loading, setLoading] = useState(false);
    const [students, setStudents] = useState<Student[]>([]);
@@ -22,6 +24,36 @@ const ParentForm = ({ type }: { type: "create" | "update" }) => {
    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
    const { enqueueSnackbar } = useSnackbar();
 
+   useEffect(() => {
+      if (data) {
+        // Transform avatar into Upload-compatible fileList array
+        const avatarFileList = data.avatar
+          ? [
+              {
+                uid: "-1",
+                name: "avatar.jpg",
+                status: "done",
+                url: data.avatar.url,
+              },
+            ]
+          : [];
+    
+        form.setFieldsValue({
+          ...data,
+          avatar: avatarFileList,
+          birthday: data.birthday ? dayjs(data.birthday) : null,  
+        });
+    
+        if (data.avatar?.url) {
+          setAvatarPreview(data.avatar.url);
+        }
+    
+      } else {
+        form.resetFields();
+        setAvatarPreview(null);
+      }
+    }, [data, form]);
+    
 
    const fetchStudents = async () => {
       const token = localStorage.getItem("token");
@@ -69,33 +101,48 @@ const ParentForm = ({ type }: { type: "create" | "update" }) => {
          const token = localStorage.getItem("token");
          if (!token) return;
 
-
-         await createParent(formData, token);
-         enqueueSnackbar("Parent created successfully!", {
-            variant: "success",
-            content: (key, message) => (
-               <CustomSnackbar id={key} message={String(message)} variant="success" />
-            ),
-         });
+         if (type === "create") {
+            await createParent(formData, token);
+            enqueueSnackbar("Parent created successfully!", {
+               variant: "success",
+               content: (key, message) => (
+                  <CustomSnackbar id={key} message={String(message)} variant="success" />
+               ),
+            });
+         } else if (type === "update" && data?._id) {
+            await updateParentProfile(data._id, formData, token);
+            enqueueSnackbar("Parent updated successfully!", {
+               variant: "success",
+               content: (key, message) => (
+                  <CustomSnackbar id={key} message={String(message)} variant="success" />
+               ),
+            });
+         }
 
          // RESET FORM FIELDS & STATES
          form.resetFields();
          setSelectedStudents([]);
          setAvatarPreview(null);
 
+         // trigger parent callback if exists
+         if (onSuccess) onSuccess();
+
       } catch (err: any) {
-         enqueueSnackbar("Failed to create a parent account!", {
-            variant: "error",
-            content: (key, message) => (
-               <CustomSnackbar id={key} message={String(message)} variant="error" />
-            ),
-         });
+         enqueueSnackbar(
+            type === "create"
+               ? "Failed to create a parent account!"
+               : "Failed to update parent account!",
+            {
+               variant: "error",
+               content: (key, message) => (
+                  <CustomSnackbar id={key} message={String(message)} variant="error" />
+               ),
+            }
+         );
       } finally {
          setLoading(false);
       }
    };
-
-
 
    return (
 
@@ -194,7 +241,7 @@ const ParentForm = ({ type }: { type: "create" | "update" }) => {
                options={students.map((student) => ({
                   _id: student._id,
                   name: `${student.firstName} ${student.lastName}`,
-                }))}
+               }))}
                selected={selectedStudents}
                setSelected={setSelectedStudents}
             />
@@ -207,7 +254,7 @@ const ParentForm = ({ type }: { type: "create" | "update" }) => {
                className="bg-blue-600 hover:bg-blue-700 transition text-white font-medium px-6 py-2 rounded-md"
                loading={loading}
             >
-               {type === "create" ? "Create" : "Update"}
+               {type === "create" ? "Create Parent" : "Update Parent"}
             </Button>
          </div>
       </Form>

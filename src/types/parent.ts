@@ -1,6 +1,6 @@
 // Define the Avatar type
 export interface Avatar {
-  public_id: string;
+  public_id: string; 
   url: string;
 }
 
@@ -20,4 +20,4 @@ export interface Parent {
  students: string[];
  role: 'parent';
  school?: string;
-}
+} 

@@ -110,8 +110,7 @@ const LessonListPage = () => {
         <div className="flex items-center gap-3">
           <Image
             src={record.teacherId?.avatar?.url || "/default-avatar.png"}
-            alt={`${record.teacherId?.firstName || "N/A"} ${record.teacherId?.lastName || "N/A"
-              }'s avatar`}
+            alt="avatar"
             width={36}
             height={36}
             className="rounded-full object-cover"
@@ -178,7 +177,7 @@ const LessonListPage = () => {
               trigger={<button className="btn">Add Lesson</button>}
               table="lesson"
               type="create"
-              refresh={refresh}
+              refresh={fetchLessons}
             />}
           </div>
         </div>

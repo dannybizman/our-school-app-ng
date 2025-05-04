@@ -4,7 +4,7 @@ import "./globals.css";
 import NotificationProvider from "@/components/NotificationProvider";
 import Providers from "@/components/Providers";
 import GlobalLoader from "@/components/common/GlobalLoader"; 
-
+import "@/utils/dayjs-setup"; 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
