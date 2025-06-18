@@ -14,7 +14,7 @@ type DecodedToken = {
 
 const useRestoreRoleFromToken = () => {
   const dispatch = useDispatch();
-
+ 
   useEffect(() => {  
     const restoreRole = async () => {
       const token = localStorage.getItem("token");
@@ -43,6 +43,11 @@ const useRestoreRoleFromToken = () => {
         let firstName = "";
         let lastName = "";
         let schoolName = "";
+        let birthday = '';
+        let phoneNumber = '';
+        let address = '';
+        let username = '';
+        let sex = '';
 
         if (userRole === "admin") {
           const res = await getLoggedInAdmin(token);
@@ -50,27 +55,47 @@ const useRestoreRoleFromToken = () => {
           firstName = res?.admin?.firstName || "";
           lastName = res?.admin?.lastName || "";
           schoolName = res?.admin?.school?.schoolName || "";
+          birthday = res?.admin?.birthday || "";
+          phoneNumber = res?.admin?.phoneNumber || "";
+          address = res?.admin?.address || "";
+          username = res?.admin?.username || "";
+          sex = res?.admin?.sex || "";
         } else if (userRole === "teacher") {
           const res = await getLoggedInTeacher(token);
           avatarUrl = res?.teacher?.avatar?.url || "";
           firstName = res?.teacher?.firstName || "";
           lastName = res?.teacher?.lastName || "";
           schoolName = res?.teacher?.school?.schoolName || "";
+          birthday = res?.teacher?.birthday || "";
+          phoneNumber = res?.teacher?.phoneNumber || "";
+          address = res?.teacher?.address || "";
+          username = res?.teacher?.username || "";
+          sex = res?.teacher?.sex || "";
         } else if (userRole === "student") {
           const res = await getLoggedInStudent(token);
           avatarUrl = res?.student?.avatar?.url || "";
           firstName = res?.student?.firstName || "";
           lastName = res?.student?.lastName || "";
           schoolName = res?.student?.school?.schoolName || "";
+          birthday = res?.student?.birthday || "";
+          phoneNumber = res?.student?.phoneNumber || "";
+          address = res?.student?.address || "";
+          username = res?.student?.username || "";
+          sex = res?.student?.sex || "";
         } else if (userRole === "parent") {
           const res = await getLoggedInParent(token);
           avatarUrl = res?.parent?.avatar?.url || "";
           firstName = res?.parent?.firstName || "";
           lastName = res?.parent?.lastName || "";
           schoolName = res?.parent?.school?.schoolName || "";
+          birthday = res?.parent?.birthday || "";
+          phoneNumber = res?.parent?.phoneNumber || "";
+          address = res?.parent?.address || "";
+          username = res?.parent?.username || "";
+          sex = res?.parent?.sex || "";
         }
 
-        dispatch(setRole({ role: userRole, avatarUrl, firstName, lastName, schoolName }));
+        dispatch(setRole({ role: userRole, avatarUrl, firstName, lastName, schoolName, birthday, phoneNumber, address, username, sex }));
 
       } catch (error) {
         console.error("Failed to restore role from token", error);

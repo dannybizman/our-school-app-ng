@@ -17,7 +17,8 @@ export interface Parent {
  sex: 'MALE' | 'FEMALE';
  avatar: Avatar;
  createdAt: string;
+ birthday?: string;
  students: string[];
  role: 'parent';
- school?: string;
+ school?: string; 
 } 

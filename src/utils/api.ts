@@ -45,6 +45,18 @@ export const getLoggedInAdmin = async (token: string) => {
   }
 };
 
+//Get Admin by Id
+export const getAdminById = (id: string, token?: string) =>
+  axios.get(`${API_BASE_URL}/admins/${id}`, getAuthHeaders(token));
+
+
+// Update Admin Profile
+export const UpdteAdminProfile = (id: string, formData: FormData, token?: string) =>
+axios.put(`${API_BASE_URL}/admins/${id}`, formData, getAuthHeaders(token));
+
+
+
+
 
 // Admin Create Teacher
 export const createTeacher = async (formData: FormData, token: string) => {
@@ -82,6 +94,9 @@ export const createParent = async (formData: FormData, token: string) => {
   }
 };
 
+
+
+
 /* ========================= TEACHER APIs ========================= */
 
 
@@ -115,17 +130,13 @@ export const getAllTeachers = (token?: string) =>
 export const getTeacherById = (id: string, token?: string) =>
   axios.get(`${API_BASE_URL}/teachers/${id}`, getAuthHeaders(token));
 
+
+  export const updateTeacherProfile = (id: string, formData: FormData, token?: string) =>
+  axios.put(`${API_BASE_URL}/teachers/${id}`, formData, getAuthHeaders(token));
+
 export const deleteTeacher = (id: string, token?: string) =>
   axios.delete(`${API_BASE_URL}/teachers/delete/${id}`, getAuthHeaders(token));
 
-export const updateTeacherProfile = (formData: FormData, token?: string) =>
-  axios.put(`${API_BASE_URL}/teachers/update-profile`, formData, {
-    ...getAuthHeaders(token),
-    headers: {
-      ...getAuthHeaders(token).headers,
-      'Content-Type': 'multipart/form-data',
-    },
-  }); 
 
 
 
@@ -164,17 +175,14 @@ export const getAllStudents = async (token?: string) => {
 export const getStudentById = (id: string, token?: string) =>
 axios.get(`${API_BASE_URL}/students/${id}`, getAuthHeaders(token));
 
+
+export const updateStudentProfile = (id: string, formData: FormData, token?: string) =>
+axios.put(`${API_BASE_URL}/students/${id}`, formData, getAuthHeaders(token));
+
+
 export const deleteStudent = (id: string, token?: string) =>
 axios.delete(`${API_BASE_URL}/students/delete/${id}`, getAuthHeaders(token));
 
-export const updateStudentProfile = (formData: FormData, token?: string) =>
-axios.put(`${API_BASE_URL}/students/update-profile`, formData, {
-  ...getAuthHeaders(token),
-  headers: {
-    ...getAuthHeaders(token).headers,
-    'Content-Type': 'multipart/form-data',
-  },
-});
 
 
 /* ========================= PARENT APIs ========================= */
@@ -211,11 +219,12 @@ export const getAllParents = (token?: string) =>
 export const getParentById = (id: string, token?: string) =>
   axios.get(`${API_BASE_URL}/parents/${id}`, getAuthHeaders(token));
 
-export const deleteParent = (id: string, token?: string) =>
-  axios.delete(`${API_BASE_URL}/parents/delete/${id}`, getAuthHeaders(token));
-
   export const updateParentProfile = (id: string, formData: FormData, token?: string) =>
   axios.put(`${API_BASE_URL}/parents/${id}`, formData, getAuthHeaders(token));
+
+  
+export const deleteParent = (id: string, token?: string) =>
+  axios.delete(`${API_BASE_URL}/parents/delete/${id}`, getAuthHeaders(token));
 
 
 /* ========================= Class APIs ========================= */

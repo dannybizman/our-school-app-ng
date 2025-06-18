@@ -8,7 +8,7 @@ import { MenuSection } from "@/types/menu";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
 import { useRouter } from "next/navigation";
-import { setRole } from "@/redux/slices/roleSlice";
+// import { setRole } from "@/redux/slices/roleSlice";
 import { useSnackbar } from 'notistack';
 import CustomSnackbar from "@/components/CustomSnackbar";
 import GlobalLoader from "./common/GlobalLoader";

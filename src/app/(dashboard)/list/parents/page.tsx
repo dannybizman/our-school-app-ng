@@ -7,7 +7,6 @@ import Pagination from "@/components/Pagination";
 import { getAllParents, getAllStudents } from "@/utils/api";
 import { useSnackbar } from "notistack";
 import CustomSnackbar from "@/components/CustomSnackbar";
-import Image from "next/image";
 import type { ColumnsType } from "antd/es/table";
 import TableSearch from "@/components/TableSearch";
 import { Parent } from '@/types/parent';
@@ -16,7 +15,7 @@ import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import { RootState } from "@/redux/store";
 import useRestoreRoleFromToken from "@/hooks/useRestoreRoleFromToken";
 import { Student } from "@/types/student";
-import Link from "next/link";
+import { UserRole } from "@/constants/roles";
 
 
 

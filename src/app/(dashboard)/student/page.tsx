@@ -27,7 +27,7 @@ type CalendarEvent = {
 };
 
 const StudentPage = () => {
-  // States
+
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [filters, setFilters] = useState<Record<EventType, boolean>>({
     lesson: true,

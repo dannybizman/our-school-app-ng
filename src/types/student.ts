@@ -16,6 +16,7 @@ export interface Student {
    bloodType?: string;
    school?: string;
    sex: 'MALE' | 'FEMALE';
+   birthday?: string;
    avatar: Avatar;
    createdAt: string;
    classId: {
@@ -24,4 +25,4 @@ export interface Student {
     gradeLevel: number;
   };
    role: 'student';
- }
+ } 

@@ -19,7 +19,8 @@ export interface Teacher {
   bloodType?: string;
   sex: 'MALE' | 'FEMALE';
   avatar: Avatar;
-  createdAt: string;
+  createdAt: string; 
+  birthday?: string;
   subjects: string[];
   lessons: string[];
   classes: string[];
